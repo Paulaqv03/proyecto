@@ -1,26 +1,28 @@
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
-
-<h3>Monitoreo de Riego</h3>
-
-<p>Time: @timeSpan</p>
+<h1>Monitoreo de Riego</h1>
+<p>Time: @timeSpan.ToString(@"hh\:mm\:ss")</p>
 
 <button @onclick="Start">Start</button>
-<button @onclick="Stop">Start</button>
-<button @onclick="Restart">Start</button>
-
+<button @onclick="Stop">Stop</button>
+<button @onclick="Restart">Restart</button>
+<ul>
+    @foreach (var time in tiempos)
+    {
+        <li>@time.ToString(@"hh\:mm\:ss")</li>
+    }
+</ul>
 @code {
     private TimeSpan timeSpan;
     private bool enRiego = false;
     private DateTime inicio;
     private Timer timer;
-
+    private List<TimeSpan> tiempos = new List<TimeSpan>();
 
     private void Start(){
         if(!enRiego)
         {
-            inicio = DateTime.Now;
+            inicio = DateTime.Now - timeSpan;
             timer = new Timer(UpdateTime, null, 0, 1000);
             enRiego = true;
         }
@@ -28,13 +30,17 @@
 
     private void Stop(){
         if(enRiego){
-            enRiego = true;
+            enRiego = false;
+            timer?.Dispose();
+            tiempos.Add(timeSpan);
+            StateHasChanged();
         }
     }
 
     private void Restart(){
         Stop();
         timeSpan = TimeSpan.Zero;
+        StateHasChanged();
     }
 
     private void UpdateTime(Object state){
