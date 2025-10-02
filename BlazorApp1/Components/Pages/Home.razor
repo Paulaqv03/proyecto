@@ -1,0 +1,44 @@
+﻿@page "/"
+
+<PageTitle>Home</PageTitle>
+
+<h3>Monitoreo de Riego</h3>
+
+<p>Time: @timeSpan</p>
+
+<button @onclick="Start">Start</button>
+<button @onclick="Stop">Start</button>
+<button @onclick="Restart">Start</button>
+
+@code {
+    private TimeSpan timeSpan;
+    private bool enRiego = false;
+    private DateTime inicio;
+    private Timer timer;
+
+
+    private void Start(){
+        if(!enRiego)
+        {
+            inicio = DateTime.Now;
+            timer = new Timer(UpdateTime, null, 0, 1000);
+            enRiego = true;
+        }
+    }
+
+    private void Stop(){
+        if(enRiego){
+            enRiego = true;
+        }
+    }
+
+    private void Restart(){
+        Stop();
+        timeSpan = TimeSpan.Zero;
+    }
+
+    private void UpdateTime(Object state){
+        timeSpan = DateTime.Now - inicio;
+        InvokeAsync(StateHasChanged);
+    }
+}
